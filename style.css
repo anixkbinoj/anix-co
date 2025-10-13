@@ -41,7 +41,7 @@ h1, h2, h3 { font-weight: 800; margin-bottom: 15px; }
   border-radius: 6px;
 }
 .nav-links a:hover, .nav-links a:focus { 
-  background: rgba(255,255,255,0.1); /* subtle highlight */
+  background: rgba(255,255,255,0.1);
   color: #00bcd4;
 }
 .menu-toggle { display: none; font-size: 2rem; cursor: pointer; }
@@ -75,6 +75,8 @@ h1, h2, h3 { font-weight: 800; margin-bottom: 15px; }
 }
 .hero h1 { font-size: 3.5rem; letter-spacing: 1.5px; }
 .hero p { font-size: 1.3rem; opacity: 0.9; margin-bottom: 25px; }
+
+/* Button */
 .btn {
   background: linear-gradient(45deg,#00bcd4,#00acc1);
   color: #000;
@@ -87,7 +89,7 @@ h1, h2, h3 { font-weight: 800; margin-bottom: 15px; }
 }
 .btn:hover, .btn:focus {
   transform: scale(1.05);
-  box-shadow: 0 0 6px #00bcd4; /* subtle highlight */
+  box-shadow: 0 0 6px #00bcd4;
 }
 
 /* Neon Circles */
@@ -127,8 +129,8 @@ section p { font-size: 1.2rem; max-width: 800px; margin: 0 auto 30px auto; opaci
   border: 1px solid rgba(0,188,212,0.3);
 }
 .card:hover, .solution-card:hover, .ai-card:hover, .team-card:hover {
-  transform: translateY(-6px) scale(1.01); /* subtle movement */
-  box-shadow: 0 0 8px #00bcd4 inset; /* soft highlight only */
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 0 8px #00bcd4 inset;
 }
 .card i, .solution-card i, .ai-card i { margin-bottom: 10px; color: #00bcd4; }
 
@@ -155,6 +157,30 @@ input:focus, textarea:focus { border: 2px solid #00bcd4; }
 /* Social Buttons */
 .social-btn i { color: #00bcd4; transition: 0.3s; }
 .social-btn i:hover, .social-btn i:focus { transform: scale(1.05); color: #00acc1; }
+
+/* 3D Rotating Hero Logo */
+.logo-container {
+  width: 220px;
+  height: 220px;
+  perspective: 1000px;
+  margin: 0 auto 20px;
+}
+#rotating-logo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transform-style: preserve-3d;
+  animation: spin 12s linear infinite;
+  box-shadow: 0 0 35px rgba(0,150,255,0.4);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+#rotating-logo:hover {
+  box-shadow: 0 0 50px rgba(255,150,0,0.8);
+}
+@keyframes spin {
+  from { transform: rotateY(0deg) rotateX(0deg); }
+  to { transform: rotateY(360deg) rotateX(360deg); }
+}
 
 /* Responsive */
 @media(max-width:768px){
