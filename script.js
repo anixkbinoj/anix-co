@@ -4,6 +4,12 @@ document.querySelectorAll('.nav-links a').forEach(link => {
     e.preventDefault();
     const target = document.querySelector(link.getAttribute('href'));
     target.scrollIntoView({ behavior: 'smooth' });
+
+    // Close mobile menu after click (optional)
+    const navLinks = document.querySelector('.nav-links');
+    if(navLinks.classList.contains('show')){
+      navLinks.classList.remove('show');
+    }
   });
 });
 
@@ -32,4 +38,12 @@ const appearOnScroll = new IntersectionObserver((entries, observer) => {
 
 faders.forEach(fader => {
   appearOnScroll.observe(fader);
+});
+
+// Mobile Hamburger Menu Toggle
+const menuToggle = document.querySelector('.menu-toggle');
+const navLinks = document.querySelector('.nav-links');
+
+menuToggle.addEventListener('click', () => {
+  navLinks.classList.toggle('show');
 });
