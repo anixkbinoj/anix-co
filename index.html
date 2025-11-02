@@ -1,156 +1,691 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Anix & Co</title>
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Anix & Co — Premium Multiverse</title>
+
+  <!-- Fonts & icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <!-- GSAP for smooth entrance animations -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/ScrollTrigger.min.js"></script>
+
+  <meta name="theme-color" content="#060818" />
+  <style>
+    /* ---------- Root / Reset ---------- */
+    :root{
+      --bg1:#04050b;
+      --bg2:#07102a;
+      --glass: rgba(255,255,255,0.03);
+      --accent: #00eaff;
+      --accent2: #b58cff;
+      --muted: #9fb4d6;
+      --radius: 14px;
+      --maxw:1200px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, -apple-system;
+      background: radial-gradient(1200px 800px at 10% 10%, rgba(124,247,255,0.02), transparent),
+                  radial-gradient(1000px 700px at 90% 80%, rgba(181,140,255,0.015), transparent),
+                  linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:#e8f6ff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow-x:hidden;
+    }
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+
+    /* ---------- Canvas background (particles/nebula) ---------- */
+    #bg { position:fixed; inset:0; z-index:-1; pointer-events:none; }
+    #bg canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+
+    /* ---------- Topbar ---------- */
+    .topbar{
+      position:fixed; left:50%; transform:translateX(-50%); top:18px;
+      width:calc(100% - 40px); max-width:var(--maxw);
+      display:flex; justify-content:space-between; align-items:center;
+      padding:10px 18px; border-radius:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.008));
+      border:1px solid rgba(255,255,255,0.03); backdrop-filter: blur(6px); z-index:60;
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{width:56px;height:56px;border-radius:10px;object-fit:cover;filter:drop-shadow(0 20px 40px rgba(0,234,255,0.05))}
+    .brand .name{font-weight:800;color:var(--accent);font-family:Orbitron, sans-serif}
+    .nav{display:flex;gap:12px}
+    .nav a, .nav button{color:#dff6ff;padding:8px 10px;border-radius:8px;font-weight:700;background:transparent;border:0;cursor:pointer}
+    .nav a:hover, .nav button:hover{background:linear-gradient(90deg, rgba(124,247,255,0.05), rgba(181,140,255,0.03));color:#fff}
+
+    /* ---------- Hero / Header ---------- */
+    header.hero{
+      min-height:92vh; display:flex; align-items:center; justify-content:center; padding:28vh 18px 80px; text-align:center; position:relative;
+    }
+    .hero-inner{ width:100%; max-width:var(--maxw); display:grid; grid-template-columns:480px 1fr; gap:28px; align-items:center; margin:0 auto; }
+    @media (max-width:980px){ .hero-inner{ grid-template-columns:1fr; padding:20px } .brand .name{display:none} }
+
+    /* Logo 3D block */
+    .logo-block{ perspective:1400px; display:flex; align-items:center; justify-content:center }
+    .logo-3d{ width:420px; height:420px; position:relative; transform-style:preserve-3d; transition:transform .24s cubic-bezier(.2,.9,.28,1); border-radius:20px; }
+    .logo-layer{ position:absolute; inset:0; border-radius:18px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.03); box-shadow: 0 40px 120px rgba(3,6,18,0.6); background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); overflow:hidden }
+    .logo-layer img{ width:64%; height:64%; object-fit:contain; mix-blend-mode:screen; filter:drop-shadow(0 40px 60px rgba(0,234,255,0.06)) }
+    .layer-back{ transform: translateZ(-48px) scale(.92); opacity:.55; }
+    .layer-mid{ transform: translateZ(-12px) scale(.98); opacity:.9; }
+    .layer-front{ transform: translateZ(22px) }
+    .logo-sheen{ position:absolute; inset:0; pointer-events:none; background: linear-gradient(120deg, rgba(255,255,255,0), rgba(255,255,255,0.14), rgba(255,255,255,0)); transform: translateX(-120%); filter: blur(10px); opacity:.7; }
+
+    /* Hero info card */
+    .hero-card{ padding:22px; border-radius:14px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); backdrop-filter: blur(6px); box-shadow: 0 30px 90px rgba(3,6,18,0.6) }
+    .hero-card h1{ font-family:Orbitron, sans-serif; color:var(--accent); font-size:34px; margin-bottom:10px; }
+    .hero-card p{ color:var(--muted); margin-bottom:18px; line-height:1.45 }
+    .cta-row{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center }
+    .btn-primary{ background: linear-gradient(90deg,var(--accent),var(--accent2)); color:#071028; padding:12px 18px; border-radius:10px; font-weight:800; border:0; cursor:pointer }
+    .btn-ghost{ background:transparent; border:1px solid rgba(255,255,255,0.04); padding:10px 14px; border-radius:10px; color:#dff6ff; cursor:pointer }
+
+    /* small stat chips */
+    .stats{ display:flex; gap:10px; margin-top:14px; justify-content:center; flex-wrap:wrap }
+    .stat{ padding:10px 12px; border-radius:10px; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border:1px solid rgba(255,255,255,0.02); min-width:100px; text-align:center }
+    .stat strong{ display:block; font-size:18px; color:var(--accent) }
+    .stat span{ font-size:12px; color:var(--muted) }
+
+    /* ---------- Sections: Expertise / Solutions / AI ---------- */
+    section { padding:84px 18px; }
+    .section-inner { max-width:var(--maxw); margin:0 auto; text-align:center }
+    .section-title { font-family:Orbitron, sans-serif; color:var(--accent); font-size:22px; margin-bottom:6px }
+    .section-sub { color:var(--muted); margin-bottom:18px }
+
+    .cards{ display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:18px }
+    .card{ padding:18px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border:1px solid rgba(255,255,255,0.02); transition: transform .28s, box-shadow .28s; cursor:default }
+    .card:hover{ transform:translateY(-8px); box-shadow: 0 28px 80px rgba(3,6,18,0.55) }
+    .card .icon{ font-size:28px; color:var(--accent); margin-bottom:12px }
+
+    /* AI features grid (larger emphasis) */
+    .ai-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:18px; margin-top:18px }
+    .ai-card{ padding:20px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border:1px solid rgba(255,255,255,0.02) }
+
+    /* ---------- Leadership (bigger icons) ---------- */
+    .team-grid{ display:flex; gap:18px; justify-content:center; flex-wrap:wrap; margin-top:18px }
+    .team-card{ width:260px; padding:18px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border:1px solid rgba(255,255,255,0.02); text-align:center; transition: transform .28s }
+    .team-card:hover{ transform:translateY(-10px); box-shadow: 0 28px 80px rgba(3,6,18,0.55) }
+    .team-card img{ width:140px; height:140px; object-fit:cover; border-radius:18px; margin:0 auto 12px; border: 3px solid rgba(0,234,255,0.08); box-shadow: 0 20px 40px rgba(0,234,255,0.04) }
+    .team-card h3{ font-size:18px; margin-bottom:6px; color:var(--accent) }
+    .team-card .role{ font-size:13px; color:var(--muted); margin-bottom:8px }
+
+    /* ---------- Join / Contact (forms) ---------- */
+    .form-card{ max-width:880px; margin:18px auto 0; padding:18px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border:1px solid rgba(255,255,255,0.02) }
+    .form-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px }
+    input, textarea, select{ padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:inherit }
+    button[type="submit"]{ background:linear-gradient(90deg,var(--accent),var(--accent2)); color:#071028; padding:12px 16px; border-radius:10px; border:0; font-weight:800; cursor:pointer }
+
+    /* ---------- Footer ---------- */
+    footer{ padding:28px; text-align:center; color:var(--muted); border-top:1px solid rgba(255,255,255,0.02) }
+
+    /* ---------- Mobile adjustments ---------- */
+    @media (max-width:880px){
+      .hero-inner{ grid-template-columns:1fr; gap:18px; padding: 20px; }
+      .logo-3d{ width:320px; height:320px }
+      .team-card img{ width:120px; height:120px }
+    }
+  </style>
 </head>
 <body>
 
-<!-- Navbar -->
-<nav class="navbar">
-  <div class="logo">
-    <img src="assets/logo.png" alt="Logo" class="logo-img">
-    <span>Anix & Co</span>
+  <!-- background canvas container -->
+  <div id="bg" aria-hidden="true">
+    <canvas id="nebulaCanvas"></canvas>
+    <canvas id="particlesCanvas"></canvas>
   </div>
-  <ul class="nav-links">
-    <li><a href="#hero">Home</a></li>
-    <li><a href="#expertise">Expertise</a></li>
-    <li><a href="#solutions">Solutions</a></li>
-    <li><a href="#ai">AI Features</a></li>
-    <li><a href="#team">Leadership</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#join">Join Us</a></li>
-    <li>
-      <a href="https://www.instagram.com/anix_and_co" target="_blank" class="social-btn" title="Follow us on Instagram">
-        <i class="fab fa-instagram fa-2x"></i>
+
+  <!-- top navigation / brand -->
+  <div class="topbar" role="banner">
+    <div class="brand" aria-label="Anix & Co">
+      <img src="assets/logo.png" alt="Anix & Co logo">
+      <div>
+        <div class="name">Anix & Co</div>
+        <div style="font-size:12px;color:var(--muted)">Engineering Intelligence</div>
+      </div>
+    </div>
+
+    <nav class="nav" role="navigation" aria-label="Main">
+      <a href="#hero">Home</a>
+      <a href="#expertise">Expertise</a>
+      <a href="#solutions">Solutions</a>
+      <a href="#ai">AI</a>
+      <a href="#team">Leadership</a>
+      <a href="#join">Join</a>
+      <a href="#contact">Contact</a>
+      <a href="https://www.instagram.com/anix_and_co" target="_blank" title="Instagram" aria-label="Instagram">
+        <i class="fab fa-instagram" style="color:var(--accent)"></i>
       </a>
-    </li>
-  </ul>
-  <div class="menu-toggle">&#9776;</div>
-</nav>
-
-<!-- Hero Section with 3D Rotating Logo -->
-<section id="hero" class="hero fade-in">
-  <div class="logo-container">
-    <img src="assets/logo.png" alt="Company Logo" id="rotating-logo">
+    </nav>
   </div>
-  <div class="hero-content">
-    <h1>Where Vision Meets Technology</h1>
-    <p>Premium web, AI, and automation solutions designed for visionaries.</p>
-    <a href="#join" class="btn">Join Us</a>
-  </div>
-</section>
 
-<!-- Expertise Section -->
-<section id="expertise" class="fade-in">
-  <h2>Our Expertise</h2>
-  <div class="cards">
-    <div class="card"><i class="fas fa-code fa-3x"></i><h3>Web Creation</h3></div>
-    <div class="card"><i class="fas fa-robot fa-3x"></i><h3>AI Solution</h3></div>
-    <div class="card"><i class="fas fa-cogs fa-3x"></i><h3>Automation Mastery</h3></div>
-    <div class="card"><i class="fas fa-paint-brush fa-3x"></i><h3>Design Driven</h3></div>
-    <div class="card"><i class="fas fa-mobile-alt fa-3x"></i><h3>App Development</h3></div>
-    <div class="card"><i class="fas fa-database fa-3x"></i><h3>Data Integration</h3></div>
-    <div class="card"><i class="fas fa-cloud fa-3x"></i><h3>Cloud Synergy</h3></div>
-    <div class="card"><i class="fas fa-server fa-3x"></i><h3>Backend Power</h3></div>
-  </div>
-</section>
+  <!-- Hero Section -->
+<header class="hero" id="hero" role="region" aria-label="Hero">
+  <div class="hero-inner">
 
-<!-- Solutions Section -->
-<section id="solutions" class="fade-in">
-  <h2>Solutions That Innovate</h2>
-  <div class="solution-cards">
-    <div class="solution-card">
-      <i class="fas fa-globe fa-3x"></i>
-      <h3>Web Solutions</h3>
-      <p>Modern web applications with sleek UX/UI and robust backend.</p>
-    </div>
-    <div class="solution-card">
-      <i class="fas fa-mobile-alt fa-3x"></i>
-      <h3>App Development</h3>
-      <p>iOS and Android apps designed for performance and experience.</p>
-    </div>
-  </div>
-</section>
-
-<!-- AI Features Section -->
-<section id="ai" class="fade-in">
-  <h2>Explore Our AI & Automation Features</h2>
-  <div class="ai-cards">
-    <div class="ai-card"><i class="fas fa-robot fa-3x"></i><h3>Smart Bot</h3></div>
-    <div class="ai-card"><i class="fas fa-chart-line fa-3x"></i><h3>Data Analysis</h3></div>
-    <div class="ai-card"><i class="fas fa-search fa-3x"></i><h3>Process Mining</h3></div>
-    <div class="ai-card"><i class="fas fa-tools fa-3x"></i><h3>RPA Tools</h3></div>
-    <div class="ai-card"><i class="fas fa-lightbulb fa-3x"></i><h3>AI Insights</h3></div>
-  </div>
-</section>
-
-<!-- Leadership Section -->
-<section id="team" class="team fade-in">
-  <h2>Leadership</h2>
-  <div class="leadership-container">
-
-    <div class="team-card leader-ceo">
-      <img src="assets/ceo.jpg" alt="CEO">
-      <h3>Anix K Binoj</h3>
-      <p class="role">Founder & CEO</p>
-      <p class="bio">Visionary leader driving innovation and growth across web, AI, and automation solutions.</p>
+    <!-- Left: 3D Animated Logo -->
+    <div class="logo-block" aria-hidden="false">
+      <div class="logo-3d" id="logo3d" aria-hidden="false">
+        <div class="logo-layer layer-back">
+          <img src="assets/logo.png" alt="Anix & Co Logo - Back Layer">
+        </div>
+        <div class="logo-layer layer-mid">
+          <img src="assets/logo.png" alt="Anix & Co Logo - Mid Layer">
+        </div>
+        <div class="logo-layer layer-front">
+          <img src="assets/logo.png" alt="Anix & Co Logo - Front Layer">
+        </div>
+        <div class="logo-sheen" id="sheen"></div>
+      </div>
     </div>
 
-    <div class="team-card leader-support">
-      <img src="assets/coo.jpg" alt="COO">
-      <h3>Ann Grace Mathew</h3>
-      <p class="role">COO</p>
-      <p class="bio">Operational expert ensuring smooth execution and delivery of cutting-edge technology solutions.</p>
+    <!-- Right: Hero card -->
+<div class="hero-card" role="article" aria-label="Hero information">
+  
+  <h1 class="hero-title glow-text">Welcome to <span>Anix & Co</span></h1>
+  
+  <p class="hero-tagline">
+    Where <strong>Vision</strong> meets <strong>Technology</strong> — empowering tomorrow through innovation, AI, and automation.  
+  </p>
+
+  <div class="welcome-box">
+    <p class="welcome-message">
+      ✨ We’re thrilled to have you here! Step into a world where creativity, intelligence, and engineering merge to create the future.
+    </p>
+  </div>
+
+  <div class="cta-row" role="group" aria-label="Primary actions">
+    <button class="btn-primary" id="exploreBtn">
+      <i class="fas fa-rocket"></i> Explore Solutions
+    </button>
+    <button class="btn-ghost" id="joinBtn">
+      <i class="fas fa-users"></i> Join Anix & Co
+    </button>
+  </div>
+
+</div>
+  </header>
+
+  <!-- Expertise -->
+  <section id="expertise" aria-labelledby="expTitle">
+    <div class="section-inner">
+      <h2 id="expTitle" class="section-title">Our Expertise</h2>
+      <p class="section-sub">From productized SaaS to production ML and automation — we cover the stack.</p>
+
+      <div class="cards" role="list">
+        <div class="card" role="listitem">
+          <div class="icon"><i class="fas fa-code"></i></div>
+          <h3>Web Creation</h3>
+          <p class="muted">Modern SPAs, progressive web apps and resilient backends with observability.</p>
+        </div>
+
+        <div class="card" role="listitem">
+          <div class="icon"><i class="fas fa-robot"></i></div>
+          <h3>AI Solution</h3>
+          <p class="muted">Agents, MLOps, predictive pipelines and model governance for production.</p>
+        </div>
+
+        <div class="card" role="listitem">
+          <div class="icon"><i class="fas fa-cogs"></i></div>
+          <h3>Automation Mastery</h3>
+          <p class="muted">RPA, event-driven orchestration, and low-latency process automation.</p>
+        </div>
+
+        <div class="card" role="listitem">
+          <div class="icon"><i class="fas fa-paint-brush"></i></div>
+          <h3>Design Driven</h3>
+          <p class="muted">User-first interfaces, brand-first visuals and accessible UX.</p>
+        </div>
+
+        <div class="card" role="listitem">
+          <div class="icon"><i class="fas fa-mobile-alt"></i></div>
+          <h3>App Development</h3>
+          <p class="muted">High-performance mobile apps with realtime sync and native UX.</p>
+        </div>
+
+        <div class="card" role="listitem">
+          <div class="icon"><i class="fas fa-database"></i></div>
+          <h3>Data Integration</h3>
+          <p class="muted">ETL, feature stores, data lakes and analytics pipelines.</p>
+        </div>
+
+        <div class="card" role="listitem">
+          <div class="icon"><i class="fas fa-cloud"></i></div>
+          <h3>Cloud Synergy</h3>
+          <p class="muted">Scalable infra, IaC, and platform-ready deployments.</p>
+        </div>
+
+        <div class="card" role="listitem">
+          <div class="icon"><i class="fas fa-server"></i></div>
+          <h3>Backend Power</h3>
+          <p class="muted">Microservices, eventing and secure API architectures.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Solutions -->
+  <section id="solutions">
+    <div class="section-inner">
+      <h2 class="section-title">Solutions That Innovate</h2>
+      <p class="section-sub">We create measurable outcomes — product velocity, automation savings, and AI-driven insight.</p>
+
+      <div class="cards" role="list">
+        <div class="card" role="listitem">
+          <div class="icon"><i class="fas fa-globe"></i></div>
+          <h3>Web Solutions</h3>
+          <p class="muted">Modern web platforms, accessible & fast UX.</p>
+        </div>
+
+        <div class="card" role="listitem">
+          <div class="icon"><i class="fas fa-mobile-alt"></i></div>
+          <h3>App Development</h3>
+          <p class="muted">iOS & Android apps with offline-first and realtime sync.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Features -->
+  <section id="ai">
+    <div class="section-inner">
+      <h2 class="section-title">Explore Our AI & Automation Features</h2>
+      <p class="section-sub">Practical AI modules you can plug into product and operations.</p>
+
+      <div class="ai-grid" role="list">
+        <div class="ai-card" role="listitem">
+          <h3>Smart Bot</h3>
+          <p class="muted">Conversational automation and assistant agents.</p>
+        </div>
+        <div class="ai-card" role="listitem">
+          <h3>Data Analysis</h3>
+          <p class="muted">Insights, dashboards and model monitoring.</p>
+        </div>
+        <div class="ai-card" role="listitem">
+          <h3>Process Mining</h3>
+          <p class="muted">Discover bottlenecks and optimize workflows end-to-end.</p>
+        </div>
+        <div class="ai-card" role="listitem">
+          <h3>RPA Tools</h3>
+          <p class="muted">Automate repetitive tasks with resilience and audit logs.</p>
+        </div>
+        <div class="ai-card" role="listitem">
+          <h3>AI Insights</h3>
+          <p class="muted">Forecasting, anomaly detection and proactive alerts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+ <!-- Leadership -->
+<section id="team">
+  <div class="section-inner">
+    <h2 class="section-title">Leadership</h2>
+    <p class="section-sub">The team driving Anix & Co</p>
+
+    <div class="team-grid" role="list">
+      <div class="team-card" role="listitem">
+        <img src="assets/ceo.jpg" alt="Anix K Binoj">
+        <h3>Anix K Binoj</h3>
+        <div class="role">Founder & PROJECT DIRECTOR </div>
+        <p class="muted">Visionary leader driving innovation and growth across web, AI, and automation solutions.</p>
+      </div>
+
+      <div class="team-card" role="listitem">
+        <img src="assets/coo.jpg" alt="Ann Grace Mathew">
+        <h3>Ann Grace Mathew</h3>
+        <div class="role">ASSOCIATE PROJECT DIRECTOR </div>
+        <p class="muted">Operational expert ensuring smooth execution and delivery of cutting-edge technology solutions.</p>
+      </div>
     </div>
 
-    <div class="team-card leader-support cto-below">
-      <img src="assets/cto.jpg" alt="CTO">
-      <h3>Christy Rony</h3>
-      <p class="role">CTO</p>
-      <p class="bio">Technical architect shaping innovative software and AI-powered solutions for the future.</p>
+    <!-- View Team Members Button -->
+    <div style="margin-top:32px;text-align:center;">
+      <button class="btn-primary" id="viewTeamBtn">View Our Team Members</button>
     </div>
-
   </div>
 </section>
 
-<!-- Contact Section -->
-<section id="contact" class="contact fade-in">
-  <h2>Contact Us</h2>
-  <form action="https://formspree.io/f/xnngoprl" method="POST">
-    <input type="text" name="name" placeholder="Your Name" required>
-    <input type="email" name="email" placeholder="Your Email" required>
-    <textarea name="message" placeholder="Your Message" rows="4" required></textarea>
-    <button type="submit" class="btn">Send Message</button>
-  </form>
+<!-- Modal for Team Members -->
+<div id="teamModal" class="modal" aria-hidden="true">
+  <div class="modal-content">
+    <button class="close-btn" id="closeModal"><i class="fas fa-times"></i></button>
+    <h2 class="section-title" style="margin-bottom:12px;">Our Team Members</h2>
+    <p class="section-sub">Meet the talent behind Anix & Co</p>
 
-  <!-- Instagram Button Below Form -->
-  <div class="contact-social">
-    <p>Follow us on Instagram</p>
-    <a href="https://www.instagram.com/anix_and_co" target="_blank" class="social-btn" title="Follow us on Instagram">
-      <i class="fab fa-instagram fa-2x"></i>
-    </a>
+    <div class="dept-group">
+      <h3>Frontend Team</h3>
+      <ul>
+        <li><strong>Team Lead:</strong> Christy Rony</li>
+        <li>Ayush Ganesh</li>
+        <li>Jesiya Jimson</li>
+        <li>Abhiya Shiju</li>
+      </ul>
+    </div>
+
+    <div class="dept-group">
+      <h3>Backend Team</h3>
+      <ul>
+        <li><strong>Team Lead:</strong> Dona Mathew</li>
+        <li>Sachin Biju</li>
+        <li>Sharon Philip</li>
+        <li>Abel Jacob Sibi</li>
+        <li>Alanroy</li>
+        <li>Alona Joshy</li>
+        <li>Irin Ann Shaji</li>
+      </ul>
+    </div>
+
+    <div class="dept-group">
+      <h3>Design & Branding</h3>
+      <ul>
+        <li><strong>Team Lead:</strong> Nijo Varghese</li>
+        <li>Nohin Reji</li>
+        <li>Milan</li>
+      </ul>
+    </div>
+
+    <div class="dept-group">
+      <h3>Sales & Marketing</h3>
+      <ul>
+        <li><strong>Team Lead:</strong> Sneha biju </li>
+         <li>Sachin Biju</li>
+        <li>Sharon Philip </li>
+        <li>Abel Jacob Sibi</li>
+        <li>Alanroy</li>
+        <li>Alona Joshy</li>
+        <li>Irin Ann Shaji</li>
+      </ul>
+    </div>
   </div>
-</section>
+</div>
+
+<!-- Modal Styles -->
+<style>
+  .modal {
+    position: fixed; inset: 0;
+    background: rgba(4, 5, 11, 0.85);
+    backdrop-filter: blur(10px);
+    display: none; justify-content: center; align-items: center;
+    z-index: 1000; padding: 20px;
+  }
+  .modal.active { display: flex; animation: fadeIn .4s ease; }
+  @keyframes fadeIn { from {opacity:0; transform:scale(0.96);} to {opacity:1; transform:scale(1);} }
+  .modal-content {
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 16px;
+    padding: 24px 32px;
+    max-width: 700px;
+    width: 100%;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+    color: #e8f6ff;
+    text-align: left;
+    position: relative;
+  }
+  .close-btn {
+    position: absolute; top: 14px; right: 14px;
+    background: transparent; border: none; color: var(--accent);
+    font-size: 22px; cursor: pointer;
+  }
+  .dept-group {
+    margin-top: 24px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+  .dept-group h3 {
+    color: var(--accent2);
+    margin-bottom: 8px;
+    font-size: 18px;
+    font-family: Orbitron, sans-serif;
+  }
+  .dept-group ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .dept-group li {
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: var(--muted);
+  }
+  .dept-group li strong {
+    color: #fff;
+  }
+  .dept-group li:last-child { border-bottom: none; }
+</style>
+
+<!-- Modal Script -->
+<script>
+  const modal = document.getElementById('teamModal');
+  const openBtn = document.getElementById('viewTeamBtn');
+  const closeBtn = document.getElementById('closeModal');
+
+  openBtn.addEventListener('click', () => {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  });
+
+  closeBtn.addEventListener('click', () => {
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  });
+
+  modal.addEventListener('click', e => {
+    if (e.target === modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+  });
+</script>
 
 
-<!-- Join Section -->
-<section id="join" class="join fade-in">
-  <h2>Join Anix & Co</h2>
-  <p>No experience required. Beginners, learners, and professionals welcome. Age 18+ only.</p>
-  <form action="https://formspree.io/f/xnngoprl" method="POST">
-    <input type="text" name="name" placeholder="Your Name" required>
-    <input type="email" name="email" placeholder="Your Email" required>
-    <input type="number" name="age" placeholder="Your Age" min="18" required>
-    <textarea name="skills" placeholder="Your Skills / Interests" rows="4" required></textarea>
-    <button type="submit" class="btn">Apply Now</button>
-  </form>
-</section>
 
-<script src="script.js"></script>
+
+  <!-- Join -->
+  <section id="join">
+    <div class="section-inner">
+      <h2 class="section-title">Join Anix & Co</h2>
+      <p class="section-sub">No experience required. Beginners, learners, and professionals welcome. Age 18+ only.</p>
+
+      <div class="form-card" aria-live="polite">
+        <form action="https://formspree.io/f/xnngoprl" method="POST" class="form-grid" id="joinForm">
+          <input type="text" name="name" placeholder="Your Name" required>
+          <input type="email" name="email" placeholder="Your Email" required>
+          <input type="number" name="age" placeholder="Your Age (18+)" min="18" required>
+          <input type="text" name="role" placeholder="Desired Role / Interest" required>
+          <textarea name="skills" rows="4" placeholder="Your Skills / Interests" required></textarea>
+          <div style="grid-column:1/-1;display:flex;justify-content:center;"><button type="submit">Apply Now</button></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <div class="section-inner">
+      <h2 class="section-title">Contact Us</h2>
+      <p class="section-sub">Let’s collaborate — send a message or follow our channels.</p>
+
+      <div class="form-card">
+        <form action="https://formspree.io/f/xnngoprl" method="POST" class="form-grid" id="contactForm">
+          <input type="text" name="name" placeholder="Your Name" required>
+          <input type="email" name="email" placeholder="Your Email" required>
+          <textarea name="message" rows="4" placeholder="Your Message" required></textarea>
+          <div style="grid-column:1/-1;display:flex;gap:12px;align-items:center;justify-content:center">
+            <button type="submit">Send Message</button>
+            <a href="https://www.instagram.com/anix_and_co" target="_blank" style="padding:10px 12px;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#071028;font-weight:700">Follow Instagram</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer><small>© <span id="year"></span> Anix & Co — All Rights Reserved</small></footer>
+
+  <!-- ---------- Scripts: particles, logo tilt, GSAP reveals ---------- -->
+  <script>
+    // set year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    /* ---------- Simple Nebula + particles (2 canvas layers) ---------- */
+    const nebula = document.getElementById('nebulaCanvas');
+    const np = nebula.getContext('2d');
+    const parts = document.getElementById('particlesCanvas');
+    const pp = parts.getContext('2d');
+
+    function resizeAll(){
+      nebula.width = parts.width = innerWidth;
+      nebula.height = parts.height = innerHeight;
+    }
+    resizeAll();
+    addEventListener('resize', resizeAll);
+
+    // particles for subtle depth
+    const particles = [];
+    for(let i=0;i<200;i++){
+      particles.push({
+        x: Math.random()*innerWidth,
+        y: Math.random()*innerHeight,
+        r: Math.random()*1.8+0.4,
+        vx: (Math.random()-0.5)*0.3,
+        vy: (Math.random()-0.5)*0.3,
+        hue: 190 + Math.random()*80,
+        life: 0.5 + Math.random()*0.9
+      });
+    }
+
+    // draw nebula (moving gradients)
+    let t = 0;
+    function drawNebula(){
+      const w = nebula.width, h = nebula.height;
+      np.clearRect(0,0,w,h);
+      t += 0.003;
+      const g1 = np.createRadialGradient(w*0.2 + Math.sin(t*1.1)*220, h*0.35, 30, w*0.2, h*0.35, Math.max(w,h));
+      g1.addColorStop(0, 'rgba(0,234,255,0.06)');
+      g1.addColorStop(0.3, 'rgba(181,140,255,0.03)');
+      g1.addColorStop(1, 'rgba(0,0,0,0)');
+      np.fillStyle = g1; np.fillRect(0,0,w,h);
+
+      const g2 = np.createRadialGradient(w*0.78 + Math.cos(t*0.9)*200, h*0.6, 20, w*0.78, h*0.6, Math.max(w,h));
+      g2.addColorStop(0, 'rgba(124,247,255,0.04)');
+      g2.addColorStop(0.35, 'rgba(181,140,255,0.02)');
+      g2.addColorStop(1, 'rgba(0,0,0,0)');
+      np.fillStyle = g2; np.fillRect(0,0,w,h);
+
+      requestAnimationFrame(drawNebula);
+    }
+    drawNebula();
+
+    function drawParticles(){
+      pp.clearRect(0,0,parts.width, parts.height);
+      for(const p of particles){
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.x < -10) p.x = parts.width + 10;
+        if(p.x > parts.width + 10) p.x = -10;
+        if(p.y < -10) p.y = parts.height + 10;
+        if(p.y > parts.height + 10) p.y = -10;
+
+        const g = pp.createRadialGradient(p.x,p.y,p.r*0.1,p.x,p.y,p.r*6);
+        g.addColorStop(0, `rgba(124,247,255,${p.life*0.18})`);
+        g.addColorStop(0.4, `rgba(181,140,255,${p.life*0.06})`);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        pp.fillStyle = g; pp.beginPath(); pp.arc(p.x,p.y,p.r*6,0,Math.PI*2); pp.fill();
+
+        pp.beginPath(); pp.fillStyle = `hsla(${p.hue},80%,60%,${p.life})`; pp.arc(p.x,p.y,p.r,0,Math.PI*2); pp.fill();
+      }
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+
+    /* ---------- Logo tilt + sheen follow ---------- */
+    const logo = document.getElementById('logo3d');
+    const sheen = document.getElementById('sheen');
+    let rect = logo.getBoundingClientRect();
+    function updateRect(){ rect = logo.getBoundingClientRect(); }
+    addEventListener('resize', updateRect);
+
+    logo.addEventListener('mousemove', (e)=>{
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height/2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const rx = (dy / rect.height) * -10;
+      const ry = (dx / rect.width) * 10;
+      logo.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+      sheen.style.transform = `translateX(${(dx / rect.width) * 180}px) rotate(-25deg)`;
+    });
+    logo.addEventListener('mouseleave', ()=> { logo.style.transform = 'rotateX(0deg) rotateY(0deg)'; sheen.style.transform = 'translateX(-120%) rotate(-25deg)'; });
+
+    /* ---------- GSAP entrance & scroll reveals ---------- */
+    gsap.registerPlugin(ScrollTrigger);
+
+    const intro = gsap.timeline();
+    intro.from('.logo-layer', { y:60, opacity:0, stagger:0.08, duration:0.9, ease:'power3.out' })
+         .from('.hero-card h1', { y:18, opacity:0, duration:0.8 }, '-=0.6')
+         .from('.hero-card p', { y:14, opacity:0, duration:0.7 }, '-=0.5')
+         .from('.cta-row button', { y:12, opacity:0, stagger:0.06 }, '-=0.4')
+         .from('.stat', { y:8, opacity:0, stagger:0.05 }, '-=0.3');
+
+    // scroll reveals for sections
+    gsap.utils.toArray('section').forEach((sec)=>{
+      gsap.from(sec.querySelectorAll('.card, .ai-card, .team-card, .form-card, .grid, .glass, .floatItem'), {
+        opacity:0, y:24, duration:0.9, stagger:0.06,
+        scrollTrigger: { trigger: sec, start:'top 78%' }
+      });
+    });
+
+    /* ---------- CTA actions: scroll to sections ---------- */
+    document.getElementById('exploreBtn').addEventListener('click', ()=> document.getElementById('solutions').scrollIntoView({behavior:'smooth'}));
+    document.getElementById('joinBtn').addEventListener('click', ()=> document.getElementById('join').scrollIntoView({behavior:'smooth'}));
+
+    /* ---------- Small accessibility: keyboard focus outlines ---------- */
+    document.addEventListener('keydown', (e)=> {
+      if(e.key === 'Tab') document.documentElement.style.scrollBehavior = 'smooth';
+    });
+
+    /* ---------- lightweight UX tweak: confirm forms preview (local) ---------- */
+    document.getElementById('joinForm').addEventListener('submit', e=>{
+      // let it submit to Formspree in production; for local preview, show toast then allow normal submit
+      // we do nothing here — Formspree will handle submission.
+      // You can uncomment the lines below to preview locally without submitting:
+      // e.preventDefault();
+      // alert('Preview: ' + new URLSearchParams(new FormData(e.target)).toString());
+    });
+
+    document.getElementById('contactForm').addEventListener('submit', e=>{
+      // same as above — allow normal submit to Formspree
+    });
+
+    /* ---------- small polishing: pointer trail (subtle) ---------- */
+    // tiny trail on particles canvas (lightweight)
+    const trail = [];
+    addEventListener('pointermove', e => {
+      trail.push({x:e.clientX, y:e.clientY, a:1, r:6 + Math.random()*6});
+      if(trail.length > 90) trail.shift();
+    });
+    function drawTrail(){
+      // draw faint circles on particles canvas
+      for(let i=0;i<trail.length;i++){
+        const p = trail[i];
+        pp.beginPath();
+        pp.fillStyle = `rgba(0,234,255,${p.a*0.04})`;
+        pp.arc(p.x,p.y,p.r,0,Math.PI*2); pp.fill();
+        p.a -= 0.02;
+      }
+      requestAnimationFrame(drawTrail);
+    }
+    drawTrail();
+
+    /* ---------- that's it — small console message ---------- */
+    console.log('Premium Anix & Co landing loaded — open in browser for full effect.');
+  </script>
 </body>
 </html>
