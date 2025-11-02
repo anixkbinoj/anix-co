@@ -37,9 +37,12 @@
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
       overflow-x:hidden;
+      -webkit-tap-highlight-color: transparent;
     }
     a{color:inherit;text-decoration:none}
     img{max-width:100%;display:block}
+    /* ensure anchor scroll spaces the topbar */
+    html { scroll-padding-top: 86px; }
 
     /* ---------- Canvas background (particles/nebula) ---------- */
     #bg { position:fixed; inset:0; z-index:-1; pointer-events:none; }
@@ -47,19 +50,41 @@
 
     /* ---------- Topbar ---------- */
     .topbar{
-      position:fixed; left:50%; transform:translateX(-50%); top:18px;
-      width:calc(100% - 40px); max-width:var(--maxw);
+      position:fixed; top:18px; left:16px; right:16px;
+      max-width:var(--maxw); margin:0 auto;
       display:flex; justify-content:space-between; align-items:center;
-      padding:10px 18px; border-radius:12px;
+      padding:10px 14px; border-radius:12px;
       background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.008));
-      border:1px solid rgba(255,255,255,0.03); backdrop-filter: blur(6px); z-index:60;
+      border:1px solid rgba(255,255,255,0.03); backdrop-filter: blur(6px); z-index:120;
+      gap:12px;
     }
-    .brand{display:flex;align-items:center;gap:12px}
+    .brand{display:flex;align-items:center;gap:12px;flex-shrink:0}
     .brand img{width:56px;height:56px;border-radius:10px;object-fit:cover;filter:drop-shadow(0 20px 40px rgba(0,234,255,0.05))}
     .brand .name{font-weight:800;color:var(--accent);font-family:Orbitron, sans-serif}
-    .nav{display:flex;gap:12px}
-    .nav a, .nav button{color:#dff6ff;padding:8px 10px;border-radius:8px;font-weight:700;background:transparent;border:0;cursor:pointer}
+    /* nav */
+    .nav{display:flex;gap:12px;align-items:center}
+    .nav a, .nav button{color:#dff6ff;padding:8px 10px;border-radius:8px;font-weight:700;background:transparent;border:0;cursor:pointer;white-space:nowrap}
     .nav a:hover, .nav button:hover{background:linear-gradient(90deg, rgba(124,247,255,0.05), rgba(181,140,255,0.03));color:#fff}
+    /* mobile menu button */
+    .menu-btn{display:none;background:transparent;border:0;color:var(--accent);font-size:20px;padding:8px;cursor:pointer}
+
+    /* mobile nav panel (hidden by default) */
+    .nav-panel{
+      display:none;
+      position:fixed;
+      top:74px; left:12px; right:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03);
+      border-radius:12px;
+      padding:12px;
+      z-index:110;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      gap:10px;
+      flex-direction:column;
+    }
+    .nav-panel a{display:block;padding:10px;border-radius:8px}
+    .nav-panel a:hover{background:rgba(255,255,255,0.02)}
 
     /* ---------- Hero / Header ---------- */
     header.hero{
@@ -124,11 +149,86 @@
     /* ---------- Footer ---------- */
     footer{ padding:28px; text-align:center; color:var(--muted); border-top:1px solid rgba(255,255,255,0.02) }
 
+    /* ---------- Modal (team members) ---------- */
+    .modal {
+      position: fixed; inset: 0;
+      background: rgba(4, 5, 11, 0.85);
+      backdrop-filter: blur(10px);
+      display: none; justify-content: center; align-items: center;
+      z-index: 1000; padding: 20px;
+    }
+    .modal.active { display: flex; animation: fadeIn .4s ease; }
+    @keyframes fadeIn { from {opacity:0; transform:scale(0.96);} to {opacity:1; transform:scale(1);} }
+    .modal-content {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 16px;
+      padding: 24px 32px;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+      color: #e8f6ff;
+      text-align: left;
+      position: relative;
+      /* make modal scrollable on small screens */
+      max-height: calc(100vh - 96px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .close-btn {
+      position: absolute; top: 14px; right: 14px;
+      background: transparent; border: none; color: var(--accent);
+      font-size: 22px; cursor: pointer;
+    }
+    .dept-group {
+      margin-top: 24px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 10px;
+      padding: 14px 18px;
+    }
+    .dept-group h3 {
+      color: var(--accent2);
+      margin-bottom: 8px;
+      font-size: 18px;
+      font-family: Orbitron, sans-serif;
+    }
+    .dept-group ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .dept-group li {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      color: var(--muted);
+    }
+    .dept-group li strong {
+      color: #fff;
+    }
+    .dept-group li:last-child { border-bottom: none; }
+
     /* ---------- Mobile adjustments ---------- */
     @media (max-width:880px){
       .hero-inner{ grid-template-columns:1fr; gap:18px; padding: 20px; }
       .logo-3d{ width:320px; height:320px }
       .team-card img{ width:120px; height:120px }
+      /* topbar adjustments */
+      .topbar{ padding:10px; left:10px; right:10px; top:12px; }
+      .nav{ display:none } /* hide desktop nav */
+      .menu-btn{ display:block }
+      .nav-panel{ display:flex; flex-direction:column }
+      .nav-panel.hidden{ display:none }
+      /* make hero padding reasonable on short screens */
+      header.hero{ padding:20vh 14px 64px }
+      /* ensure join/contact forms are full width stacked */
+      .form-grid{ grid-template-columns:1fr }
+      .brand img{ width:48px; height:48px }
+    }
+
+    @media (max-width:480px){
+      .logo-3d{ width:260px;height:260px }
+      .hero-card h1{ font-size:26px }
+      .topbar{ border-radius:10px }
     }
   </style>
 </head>
@@ -150,6 +250,7 @@
       </div>
     </div>
 
+    <!-- Desktop nav -->
     <nav class="nav" role="navigation" aria-label="Main">
       <a href="#hero">Home</a>
       <a href="#expertise">Expertise</a>
@@ -162,6 +263,25 @@
         <i class="fab fa-instagram" style="color:var(--accent)"></i>
       </a>
     </nav>
+
+    <!-- Mobile menu button -->
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu" title="Menu">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- Mobile nav panel (hidden by default) -->
+  <div id="mobileNav" class="nav-panel hidden" aria-hidden="true" role="menu" tabindex="-1" style="display:none;">
+    <a href="#hero" role="menuitem">Home</a>
+    <a href="#expertise" role="menuitem">Expertise</a>
+    <a href="#solutions" role="menuitem">Solutions</a>
+    <a href="#ai" role="menuitem">AI</a>
+    <a href="#team" role="menuitem">Leadership</a>
+    <a href="#join" role="menuitem">Join</a>
+    <a href="#contact" role="menuitem">Contact</a>
+    <a href="https://www.instagram.com/anix_and_co" target="_blank" title="Instagram" aria-label="Instagram" role="menuitem">
+      <i class="fab fa-instagram" style="color:var(--accent)"></i> Instagram
+    </a>
   </div>
 
   <!-- Hero Section -->
@@ -186,11 +306,11 @@
 
     <!-- Right: Hero card -->
 <div class="hero-card" role="article" aria-label="Hero information">
-  
+
   <h1 class="hero-title glow-text">Welcome to <span>Anix & Co</span></h1>
-  
+
   <p class="hero-tagline">
-    Where <strong>Vision</strong> meets <strong>Technology</strong> — empowering tomorrow through innovation, AI, and automation.  
+    Where <strong>Vision</strong> meets <strong>Technology</strong> — empowering tomorrow through innovation, AI, and automation.
   </p>
 
   <div class="welcome-box">
@@ -353,9 +473,9 @@
 
 <!-- Modal for Team Members -->
 <div id="teamModal" class="modal" aria-hidden="true">
-  <div class="modal-content">
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="teamModalTitle">
     <button class="close-btn" id="closeModal"><i class="fas fa-times"></i></button>
-    <h2 class="section-title" style="margin-bottom:12px;">Our Team Members</h2>
+    <h2 id="teamModalTitle" class="section-title" style="margin-bottom:12px;">Our Team Members</h2>
     <p class="section-sub">Meet the talent behind Anix & Co</p>
 
     <div class="dept-group">
@@ -404,89 +524,6 @@
     </div>
   </div>
 </div>
-
-<!-- Modal Styles -->
-<style>
-  .modal {
-    position: fixed; inset: 0;
-    background: rgba(4, 5, 11, 0.85);
-    backdrop-filter: blur(10px);
-    display: none; justify-content: center; align-items: center;
-    z-index: 1000; padding: 20px;
-  }
-  .modal.active { display: flex; animation: fadeIn .4s ease; }
-  @keyframes fadeIn { from {opacity:0; transform:scale(0.96);} to {opacity:1; transform:scale(1);} }
-  .modal-content {
-    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
-    border: 1px solid rgba(255,255,255,0.04);
-    border-radius: 16px;
-    padding: 24px 32px;
-    max-width: 700px;
-    width: 100%;
-    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
-    color: #e8f6ff;
-    text-align: left;
-    position: relative;
-  }
-  .close-btn {
-    position: absolute; top: 14px; right: 14px;
-    background: transparent; border: none; color: var(--accent);
-    font-size: 22px; cursor: pointer;
-  }
-  .dept-group {
-    margin-top: 24px;
-    background: rgba(255,255,255,0.02);
-    border-radius: 10px;
-    padding: 14px 18px;
-  }
-  .dept-group h3 {
-    color: var(--accent2);
-    margin-bottom: 8px;
-    font-size: 18px;
-    font-family: Orbitron, sans-serif;
-  }
-  .dept-group ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  .dept-group li {
-    padding: 4px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-    color: var(--muted);
-  }
-  .dept-group li strong {
-    color: #fff;
-  }
-  .dept-group li:last-child { border-bottom: none; }
-</style>
-
-<!-- Modal Script -->
-<script>
-  const modal = document.getElementById('teamModal');
-  const openBtn = document.getElementById('viewTeamBtn');
-  const closeBtn = document.getElementById('closeModal');
-
-  openBtn.addEventListener('click', () => {
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  });
-
-  closeBtn.addEventListener('click', () => {
-    modal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-  });
-
-  modal.addEventListener('click', e => {
-    if (e.target === modal) {
-      modal.classList.remove('active');
-      document.body.style.overflow = 'auto';
-    }
-  });
-</script>
-
-
-
 
   <!-- Join -->
   <section id="join">
@@ -612,6 +649,7 @@
     function updateRect(){ rect = logo.getBoundingClientRect(); }
     addEventListener('resize', updateRect);
 
+    // mouse tilt for desktop
     logo.addEventListener('mousemove', (e)=>{
       const cx = rect.left + rect.width/2;
       const cy = rect.top + rect.height/2;
@@ -624,6 +662,24 @@
     });
     logo.addEventListener('mouseleave', ()=> { logo.style.transform = 'rotateX(0deg) rotateY(0deg)'; sheen.style.transform = 'translateX(-120%) rotate(-25deg)'; });
 
+    // touch-friendly small tilt on touch devices (optional subtle)
+    let lastTouch = null;
+    logo.addEventListener('touchmove', (ev)=>{
+      const touch = ev.touches[0];
+      if(!touch) return;
+      if(!rect) updateRect();
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height/2;
+      const dx = touch.clientX - cx;
+      const dy = touch.clientY - cy;
+      const rx = (dy / rect.height) * -6;
+      const ry = (dx / rect.width) * 6;
+      logo.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+      sheen.style.transform = `translateX(${(dx / rect.width) * 140}px) rotate(-25deg)`;
+      lastTouch = touch;
+    });
+    logo.addEventListener('touchend', ()=> { logo.style.transform = 'rotateX(0deg) rotateY(0deg)'; sheen.style.transform = 'translateX(-120%) rotate(-25deg)'; lastTouch = null; });
+
     /* ---------- GSAP entrance & scroll reveals ---------- */
     gsap.registerPlugin(ScrollTrigger);
 
@@ -631,8 +687,7 @@
     intro.from('.logo-layer', { y:60, opacity:0, stagger:0.08, duration:0.9, ease:'power3.out' })
          .from('.hero-card h1', { y:18, opacity:0, duration:0.8 }, '-=0.6')
          .from('.hero-card p', { y:14, opacity:0, duration:0.7 }, '-=0.5')
-         .from('.cta-row button', { y:12, opacity:0, stagger:0.06 }, '-=0.4')
-         .from('.stat', { y:8, opacity:0, stagger:0.05 }, '-=0.3');
+         .from('.cta-row button', { y:12, opacity:0, stagger:0.06 }, '-=0.4');
 
     // scroll reveals for sections
     gsap.utils.toArray('section').forEach((sec)=>{
@@ -646,6 +701,84 @@
     document.getElementById('exploreBtn').addEventListener('click', ()=> document.getElementById('solutions').scrollIntoView({behavior:'smooth'}));
     document.getElementById('joinBtn').addEventListener('click', ()=> document.getElementById('join').scrollIntoView({behavior:'smooth'}));
 
+    /* ---------- Mobile menu toggle ---------- */
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileNav = document.getElementById('mobileNav');
+
+    function openMobileNav(){
+      mobileNav.style.display = 'flex';
+      mobileNav.classList.remove('hidden');
+      mobileNav.setAttribute('aria-hidden', 'false');
+      // prevent background scroll
+      document.body.style.overflow = 'hidden';
+      menuBtn.innerHTML = '<i class="fas fa-times"></i>';
+      menuBtn.setAttribute('aria-label','Close menu');
+    }
+    function closeMobileNav(){
+      mobileNav.style.display = 'none';
+      mobileNav.classList.add('hidden');
+      mobileNav.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+      menuBtn.setAttribute('aria-label','Open menu');
+    }
+
+    menuBtn.addEventListener('click', ()=>{
+      if(mobileNav.classList.contains('hidden')){
+        openMobileNav();
+      } else {
+        closeMobileNav();
+      }
+    });
+
+    // close mobile nav when a link is clicked (good for single page)
+    mobileNav.querySelectorAll('a').forEach(a=>{
+      a.addEventListener('click', ()=> {
+        closeMobileNav();
+      });
+    });
+
+    /* ---------- Modal for team members (scrollable) ---------- */
+    const modal = document.getElementById('teamModal');
+    const openBtn = document.getElementById('viewTeamBtn');
+    const closeBtn = document.getElementById('closeModal');
+
+    openBtn.addEventListener('click', () => {
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden','false');
+      document.body.style.overflow = 'hidden';
+      // ensure focus inside modal for accessibility
+      setTimeout(()=> document.querySelector('#teamModal .modal-content').focus(), 140);
+    });
+
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden','true');
+      document.body.style.overflow = 'auto';
+    });
+
+    modal.addEventListener('click', e => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden','true');
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    // allow Esc to close modal
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape'){
+        if(modal.classList.contains('active')) {
+          modal.classList.remove('active');
+          modal.setAttribute('aria-hidden','true');
+          document.body.style.overflow = 'auto';
+        }
+        if(!mobileNav.classList.contains('hidden')){
+          closeMobileNav();
+        }
+      }
+    });
+
     /* ---------- Small accessibility: keyboard focus outlines ---------- */
     document.addEventListener('keydown', (e)=> {
       if(e.key === 'Tab') document.documentElement.style.scrollBehavior = 'smooth';
@@ -653,26 +786,20 @@
 
     /* ---------- lightweight UX tweak: confirm forms preview (local) ---------- */
     document.getElementById('joinForm').addEventListener('submit', e=>{
-      // let it submit to Formspree in production; for local preview, show toast then allow normal submit
-      // we do nothing here — Formspree will handle submission.
-      // You can uncomment the lines below to preview locally without submitting:
-      // e.preventDefault();
-      // alert('Preview: ' + new URLSearchParams(new FormData(e.target)).toString());
+      // Formspree will handle submission — keep behavior unchanged.
     });
 
     document.getElementById('contactForm').addEventListener('submit', e=>{
-      // same as above — allow normal submit to Formspree
+      // Formspree will handle submission — keep behavior unchanged.
     });
 
     /* ---------- small polishing: pointer trail (subtle) ---------- */
-    // tiny trail on particles canvas (lightweight)
     const trail = [];
     addEventListener('pointermove', e => {
       trail.push({x:e.clientX, y:e.clientY, a:1, r:6 + Math.random()*6});
       if(trail.length > 90) trail.shift();
     });
     function drawTrail(){
-      // draw faint circles on particles canvas
       for(let i=0;i<trail.length;i++){
         const p = trail[i];
         pp.beginPath();
