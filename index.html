@@ -157,14 +157,14 @@
       display: none; justify-content: center; align-items: center;
       z-index: 1000; padding: 20px;
     }
-    .modal.active { display: flex; animation: fadeIn .4s ease; }
+    .modal.active { display: flex; animation: fadeIn .36s ease; }
     @keyframes fadeIn { from {opacity:0; transform:scale(0.96);} to {opacity:1; transform:scale(1);} }
     .modal-content {
       background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
       border: 1px solid rgba(255,255,255,0.04);
       border-radius: 16px;
-      padding: 24px 32px;
-      max-width: 700px;
+      padding: 20px 24px;
+      max-width: 900px;
       width: 100%;
       box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
       color: #e8f6ff;
@@ -181,14 +181,14 @@
       font-size: 22px; cursor: pointer;
     }
     .dept-group {
-      margin-top: 24px;
+      margin-top: 18px;
       background: rgba(255,255,255,0.02);
       border-radius: 10px;
-      padding: 14px 18px;
+      padding: 12px 14px;
     }
     .dept-group h3 {
       color: var(--accent2);
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       font-size: 18px;
       font-family: Orbitron, sans-serif;
     }
@@ -207,6 +207,27 @@
     }
     .dept-group li:last-child { border-bottom: none; }
 
+    /* members grid (photo cards) inside modal */
+    .members-grid {
+      display:grid;
+      grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+      gap:12px;
+      margin-top:12px;
+    }
+    .member-card {
+      background: transparent;
+      border-radius:12px;
+      padding:10px;
+      text-align:center;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .member-card img {
+      width:100px; height:100px; object-fit:cover; border-radius:12px; margin:0 auto 8px; display:block;
+      border: 2px solid rgba(0,234,255,0.06);
+    }
+    .member-card h4 { margin:6px 0 4px; font-size:14px; color:var(--accent); }
+    .member-card p { margin:0; font-size:13px; color:var(--muted); }
+
     /* ---------- Mobile adjustments ---------- */
     @media (max-width:880px){
       .hero-inner{ grid-template-columns:1fr; gap:18px; padding: 20px; }
@@ -223,12 +244,14 @@
       /* ensure join/contact forms are full width stacked */
       .form-grid{ grid-template-columns:1fr }
       .brand img{ width:48px; height:48px }
+      .modal-content{ padding:16px 18px }
     }
 
     @media (max-width:480px){
       .logo-3d{ width:260px;height:260px }
       .hero-card h1{ font-size:26px }
       .topbar{ border-radius:10px }
+      .member-card img{ width:84px; height:84px }
     }
   </style>
 </head>
@@ -464,7 +487,7 @@
       </div>
     </div>
 
-    <!-- View Team Members Button -->
+    <!-- View Team Members Button (below leadership) -->
     <div style="margin-top:32px;text-align:center;">
       <button class="btn-primary" id="viewTeamBtn">View Our Team Members</button>
     </div>
@@ -473,54 +496,45 @@
 
 <!-- Modal for Team Members -->
 <div id="teamModal" class="modal" aria-hidden="true">
-  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="teamModalTitle">
-    <button class="close-btn" id="closeModal"><i class="fas fa-times"></i></button>
-    <h2 id="teamModalTitle" class="section-title" style="margin-bottom:12px;">Our Team Members</h2>
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="teamModalTitle" tabindex="-1">
+    <button class="close-btn" id="closeModal" aria-label="Close team modal"><i class="fas fa-times"></i></button>
+    <h2 id="teamModalTitle" class="section-title" style="margin-bottom:8px;">Our Team Members</h2>
     <p class="section-sub">Meet the talent behind Anix & Co</p>
 
-    <div class="dept-group">
-      <h3>Frontend Team</h3>
-      <ul>
-        <li><strong>Team Lead:</strong> Christy Rony</li>
-        <li>Ayush Ganesh</li>
-        <li>Jesiya Jimson</li>
-        <li>Abhiya Shiju</li>
-      </ul>
-    </div>
-
-    <div class="dept-group">
-      <h3>Backend Team</h3>
-      <ul>
-        <li><strong>Team Lead:</strong> Dona Mathew</li>
-        <li>Sachin Biju</li>
-        <li>Sharon Philip</li>
-        <li>Abel Jacob Sibi</li>
-        <li>Alanroy</li>
-        <li>Alona Joshy</li>
-        <li>Irin Ann Shaji</li>
-      </ul>
-    </div>
-
-    <div class="dept-group">
-      <h3>Design & Branding</h3>
-      <ul>
-        <li><strong>Team Lead:</strong> Nijo Varghese</li>
-        <li>Nohin Reji</li>
-        <li>Milan Joseph</li>
-      </ul>
-    </div>
-
-    <div class="dept-group">
-      <h3>Sales & Marketing</h3>
-      <ul>
-        <li><strong>Team Lead:</strong> Sneha biju </li>
-         <li>Sachin Biju</li>
-        <li>Sharon Philip </li>
-        <li>Abel Jacob Sibi</li>
-        <li>Alanroy</li>
-        <li>Alona Joshy</li>
-        <li>Irin Ann Shaji</li>
-      </ul>
+    <!-- We'll render groups & member photo-cards dynamically via JS -->
+    <div id="teamGroupsContainer" aria-live="polite">
+      <noscript>
+        <div class="dept-group">
+          <h3>Frontend Team</h3>
+          <ul>
+            <li><strong>Team Lead:</strong> Christy Rony</li>
+            <li>Ayush Ganesh</li>
+            <li>Jesiya Jimson</li>
+            <li>Abhiya Shiju</li>
+          </ul>
+        </div>
+        <div class="dept-group">
+          <h3>Backend & Sales Team</h3>
+          <ul>
+            <li><strong>Team Lead:</strong> Dona Mathew</li>
+            <li><strong>Sales Lead:</strong> Sneha biju</li>
+            <li>Sachin Biju</li>
+            <li>Sharon Philip</li>
+            <li>Abel Jacob Sibi</li>
+            <li>Alanroy</li>
+            <li>Alona Joshy</li>
+            <li>Irin Ann Shaji</li>
+          </ul>
+        </div>
+        <div class="dept-group">
+          <h3>Designers & Branding</h3>
+          <ul>
+            <li><strong>Team Lead:</strong> Nijo Varghese</li>
+            <li>Nohin Reji</li>
+            <li>Milan Joseph</li>
+          </ul>
+        </div>
+      </noscript>
     </div>
   </div>
 </div>
@@ -811,8 +825,113 @@
     }
     drawTrail();
 
+    /* ---------- Team modal dynamic rendering ---------- */
+    // Member list + filenames (edit here if you have different image filenames)
+    // Use filenames that exist in your assets/ folder (all .jpg as you confirmed)
+    const members = [
+      // Leadership (also displayed top)
+      { name: "Anix K Binoj", role: "Founder & Project Director", img: "ceo.jpg", groups: ["Leadership"] },
+      { name: "Ann Grace Mathew", role: "Associate Project Director", img: "coo.jpg", groups: ["Leadership"] },
+
+      // Frontend
+      { name: "Christy Rony", role: "Frontend Team Lead", img: "christy_rony.jpg", groups: ["Frontend"] },
+      { name: "Ayush Ganesh", role: "Frontend Developer", img: "ayush_ganesh.jpg", groups: ["Frontend"] },
+      { name: "Jesiya Jimson", role: "Frontend Developer", img: "jesiya_jimson.jpg", groups: ["Frontend"] },
+      { name: "Abhiya Shaiju", role: "Frontend Developer", img: "abhiya_shiju.jpg", groups: ["Frontend"] },
+
+      // Backend & Sales (combined group)
+      { name: "Dona Mathew", role: "Team Lead (Backend)", img: "dona_mathew.jpg", groups: ["BackendSales"] },
+      { name: "Sneha biju", role: "Team Lead (Sales)", img: "sneha_biju.jpg", groups: ["BackendSales"] },
+      { name: "Sachin Biju", role: "Backend Developer", img: "sachin_biju.jpg", groups: ["BackendSales"] },
+      { name: "Sharon Philip", role: "Backend Developer", img: "sharon_philip.jpg", groups: ["BackendSales"] },
+      { name: "Abel Jacob Sibi", role: "Backend Engineer", img: "abel_jacob_sibi.jpg", groups: ["BackendSales"] },
+      { name: "Alan roy", role: "Backend Developer", img: "alanroy.jpg", groups: ["BackendSales"] },
+      { name: "Alona Joshy", role: "Backend Developer", img: "alona_joshy.jpg", groups: ["BackendSales"] },
+      { name: "Irin Ann Shaji", role: "Backend Developer", img: "irin_ann_shaji.jpg", groups: ["BackendSales"] },
+
+      // Design
+      { name: "Nijo Varghese", role: "Design Team Lead", img: "nijo_varghese.jpg", groups: ["Design"] },
+      { name: "Nohin Reji", role: "Designer", img: "nohin_reji.jpg", groups: ["Design"] },
+      { name: "Milan Joseph", role: "Designer", img: "milan_joseph.jpg", groups: ["Design"] }
+    ];
+
+    const groups = [
+      { key: "Frontend", title: "Frontend Team" },
+      { key: "BackendSales", title: "Backend & Sales Team" },
+      { key: "Design", title: "Designers & Branding" }
+    ];
+
+    function buildTeamModal(){
+      const container = document.getElementById('teamGroupsContainer');
+      container.innerHTML = ''; // clear fallback
+
+      groups.forEach(g => {
+        const groupWrap = document.createElement('div');
+        groupWrap.className = 'dept-group';
+        const h = document.createElement('h3');
+        h.textContent = g.title;
+        groupWrap.appendChild(h);
+
+        // members list (text list) for accessibility
+        const list = document.createElement('ul');
+
+        // also build a photo-grid for the group
+        const grid = document.createElement('div');
+        grid.className = 'members-grid';
+        let foundAny = false;
+
+        members.forEach(m => {
+          const isInGroup = Array.isArray(m.groups) ? m.groups.includes(g.key) : false;
+          if(isInGroup){
+            foundAny = true;
+            // list item textual
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>${m.name}</strong> — <span style="color:var(--muted)">${m.role}</span>`;
+            list.appendChild(li);
+
+            // member card photo
+            const card = document.createElement('div');
+            card.className = 'member-card';
+            const img = document.createElement('img');
+
+            // Use provided img filename
+            const imgFilename = m.img;
+            img.src = `assets/${imgFilename}`;
+            img.alt = m.name + " photo";
+            // fallback if missing
+            img.onerror = function(){ this.onerror=null; this.src='assets/avatar_placeholder.png'; };
+
+            const nameEl = document.createElement('h4'); nameEl.textContent = m.name;
+            const roleEl = document.createElement('p'); roleEl.textContent = m.role;
+
+            card.appendChild(img);
+            card.appendChild(nameEl);
+            card.appendChild(roleEl);
+            grid.appendChild(card);
+          }
+        });
+
+        if(!foundAny){
+          const p = document.createElement('p');
+          p.style.color = 'var(--muted)';
+          p.style.fontSize = '13px';
+          p.textContent = 'No members listed for this group yet.';
+          groupWrap.appendChild(p);
+        } else {
+          groupWrap.appendChild(grid);
+          // append text list for screen readers / quick text view
+          groupWrap.appendChild(list);
+        }
+
+        container.appendChild(groupWrap);
+      });
+    }
+
+    // Build modal once DOM is ready (script placed at end, so DOM exists)
+    buildTeamModal();
+
     /* ---------- that's it — small console message ---------- */
-    console.log('Premium Anix & Co landing loaded — open in browser for full effect.');
+    console.log('Premium Anix & Co landing loaded — team modal enhanced with photos and roles.');
   </script>
 </body>
 </html>
